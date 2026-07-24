@@ -81,10 +81,17 @@ export default function TaskFormModal({
   };
 
   return (
-    <Modal visible={visible} animationType="slide" transparent onRequestClose={onCancel}>
+    <Modal
+      visible={visible}
+      animationType="slide"
+      transparent
+      statusBarTranslucent
+      onRequestClose={onCancel}
+    >
       <KeyboardAvoidingView
         style={styles.backdrop}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={0}
       >
         <View style={styles.card}>
           <Text style={styles.heading}>{title}</Text>

@@ -31,7 +31,11 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "test": "jest",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "apk": "cd android && ./gradlew assembleRelease",
+    "apk:debug": "cd android && ./gradlew assembleDebug",
+    "apk:clean": "cd android && ./gradlew clean assembleRelease",
+    "aab": "cd android && ./gradlew bundleRelease"
   },
   "jest": {
     "preset": "jest-expo",
