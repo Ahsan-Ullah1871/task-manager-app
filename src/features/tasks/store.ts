@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { readCache, writeCache, type CacheShape } from '../../lib/cache';
-import { subscribeToConnectivity } from '../../lib/netinfo';
+import { isOnline as checkOnline, subscribeToConnectivity } from '../../lib/netinfo';
 import * as categoriesApi from '../categories/api';
 import * as tasksApi from './api';
 import { mergeRemoteTasks } from './merge';
@@ -93,9 +93,18 @@ export const useTaskStore = create<TaskState>((set, get) => ({
       hydrated: true,
     });
 
-    // Keep the offline indicator in sync with connectivity.
-    subscribeToConnectivity((isOnline) => {
-      set((s) => ({ sync: { ...s.sync, isOffline: !isOnline } }));
+    // Keep the offline indicator in sync with connectivity. When the device
+    // comes back online, clear any stale offline-era error and refresh so the
+    // status bar doesn't show a leftover "fetch failed" next to the online icon.
+    let wasOnline = true;
+    subscribeToConnectivity((online) => {
+      set((s) => ({
+        sync: { ...s.sync, isOffline: !online, error: online ? s.sync.error : null },
+      }));
+      if (online && !wasOnline) {
+        void get().refresh();
+      }
+      wasOnline = online;
     });
   },
 
@@ -124,12 +133,20 @@ export const useTaskStore = create<TaskState>((set, get) => ({
       }));
       await persist(get());
     } catch (err) {
-      // Refresh failed — keep whatever is already cached on screen.
+      // Refresh failed — keep whatever is already cached on screen. If the
+      // failure is simply because we're offline (e.g. DNS/UnknownHost), surface
+      // it as the offline state, not as an error message.
+      const offline = !(await checkOnline());
       set((s) => ({
         sync: {
           ...s.sync,
           isRefreshing: false,
-          error: err instanceof Error ? err.message : 'Refresh failed',
+          isOffline: offline,
+          error: offline
+            ? null
+            : err instanceof Error
+              ? err.message
+              : 'Refresh failed',
         },
       }));
     }
