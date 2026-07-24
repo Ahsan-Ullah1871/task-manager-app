@@ -5,6 +5,10 @@ them complete, and browse by category and status. Tasks are readable offline fro
 a local cache and refresh from Supabase in the background when the device is
 online. A per-device **starred** flag is preserved across refreshes.
 
+> 📱 **Try it now (Android):** [Download the APK](https://drive.google.com/file/d/1AHYWAjGVZlT_Ac-qJdyF5Zwdsz3N82xr/view?usp=drive_link)
+> — install on an Android device/emulator to test without building. (It's a
+> release build with the backend config bundled in.)
+
 ## Stack
 
 | Concern | Choice |
